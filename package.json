@@ -17,9 +17,15 @@
     "@octokit/rest": "^22.0.1",
     "@prisma/client": "^6.19.2",
     "axios": "^1.13.2",
+    "chalk": "^5.6.2",
     "commander": "^14.0.2",
     "dotenv": "^17.2.3",
+    "fs": "^0.0.1-security",
     "inquirer": "^13.2.0",
+    "open": "^11.0.0",
+    "ora": "^9.0.0",
+    "os": "^0.1.2",
+    "path": "^0.12.7",
     "prisma": "^6.19.2"
   },
   "devDependencies": {

@@ -1,6 +1,12 @@
 import { Command } from "commander";
 import { showHelp } from "./help";
-
+import { loginWithGithub, logoutUser, authStatus } from "../cli/auth";
+import { getGithubUser } from "./github";
+import {
+  connectRepoCommand,
+  disconnectRepoCommand,
+  listRepoCommand,
+} from "./repo";
 
 const program = new Command();
 
@@ -14,22 +20,22 @@ program
 program
   .command("login")
   .description("Login to Teams CLI")
-  .action(() => {
-    console.log("🔐 Logging in with github wait...");
+  .action(async () => {
+    await loginWithGithub();
   });
 
 program
   .command("logout")
   .description("Logout from Teams CLI")
   .action(() => {
-    console.log("Logged out successfully.");
+    logoutUser();
   });
 
 program
   .command("whoami")
   .description("Show current logged-in user")
   .action(() => {
-    console.log("👤 You are logged in as Github user");
+    getGithubUser();
   });
 
 //User commands'
@@ -158,6 +164,24 @@ member
     console.log(`👥 Listing members of team ${opts.team}`);
   });
 
+// Repositories commands
+const repo = program.command("repo").description("Repository management");
+
+repo
+  .command("connect")
+  .description("Connect a GitHub repository")
+  .action(connectRepoCommand);
+
+repo
+  .command("disconnect")
+  .description("Disconnect a GitHub repository")
+  .action(disconnectRepoCommand);
+
+repo
+  .command("list")
+  .description("List connected repositories")
+  .action(listRepoCommand);
+
 //Invite commands
 
 const invite = program.command("invite").description("Invitation");
@@ -230,13 +254,12 @@ program
     console.log("🟢 CLI is working fine");
   });
 
-  //Help commands
-  program
+//Help commands
+program
   .command("help")
   .description("Show help menu")
   .action(() => {
     showHelp();
   });
-
 
 program.parse(process.argv);

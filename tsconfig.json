@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
-    
+
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "target": "ES2020",

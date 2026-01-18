@@ -1,4 +1,4 @@
-import inquirer from "inquirer";
+import inquirer from 'inquirer';
 
 /**
  * Ask for GitHub repository details
@@ -6,23 +6,23 @@ import inquirer from "inquirer";
 export async function askRepoDetails() {
   return inquirer.prompt([
     {
-      type: "input",
-      name: "owner",
-      message: "GitHub owner (username or org):",
+      type: 'input',
+      name: 'owner',
+      message: 'GitHub owner (username or org):',
       validate: (input: string) =>
-        input.trim() !== "" || "Owner cannot be empty",
+        input.trim() !== '' || 'Owner cannot be empty',
     },
     {
-      type: "input",
-      name: "repo",
-      message: "Repository name:",
+      type: 'input',
+      name: 'repo',
+      message: 'Repository name:',
       validate: (input: string) =>
-        input.trim() !== "" || "Repository name cannot be empty",
+        input.trim() !== '' || 'Repository name cannot be empty',
     },
     {
-      type: "confirm",
-      name: "isPrivate",
-      message: "Is this a private repository?",
+      type: 'confirm',
+      name: 'isPrivate',
+      message: 'Is this a private repository?',
       default: false,
     },
   ]);
@@ -34,9 +34,9 @@ export async function askRepoDetails() {
 export async function selectRepo(repos: string[]) {
   return inquirer.prompt([
     {
-      type: "list",
-      name: "repo",
-      message: "Select a repository:",
+      type: 'list',
+      name: 'repo',
+      message: 'Select a repository:',
       choices: repos,
     },
   ]);
@@ -48,8 +48,8 @@ export async function selectRepo(repos: string[]) {
 export async function confirmAction(message: string) {
   const { confirm } = await inquirer.prompt([
     {
-      type: "confirm",
-      name: "confirm",
+      type: 'confirm',
+      name: 'confirm',
       message,
       default: false,
     },
@@ -64,11 +64,11 @@ export async function confirmAction(message: string) {
 export async function askTeamName() {
   return inquirer.prompt([
     {
-      type: "input",
-      name: "name",
-      message: "Enter team name:",
+      type: 'input',
+      name: 'name',
+      message: 'Enter team name:',
       validate: (input: string) =>
-        input.trim() !== "" || "Team name cannot be empty",
+        input.trim() !== '' || 'Team name cannot be empty',
     },
   ]);
 }
@@ -79,11 +79,11 @@ export async function askTeamName() {
 export async function askGithubUsername() {
   return inquirer.prompt([
     {
-      type: "input",
-      name: "username",
-      message: "GitHub username:",
+      type: 'input',
+      name: 'username',
+      message: 'GitHub username:',
       validate: (input: string) =>
-        input.trim() !== "" || "Username cannot be empty",
+        input.trim() !== '' || 'Username cannot be empty',
     },
   ]);
 }

@@ -1,10 +1,10 @@
-import fs from "fs";
-import path from "path";
-import axios from "axios";
-import { getAuthToken } from "../config/auth.config";
+import fs from 'fs';
+import path from 'path';
+import axios from 'axios';
+import { getAuthToken } from '../config/auth.config';
 
-const DATA_DIR = path.join(process.cwd(), ".teams");
-const REPO_FILE = path.join(DATA_DIR, "repos.json");
+const DATA_DIR = path.join(process.cwd(), '.teams');
+const REPO_FILE = path.join(DATA_DIR, 'repos.json');
 
 function ensureStorage() {
   if (!fs.existsSync(DATA_DIR)) {
@@ -18,7 +18,7 @@ function ensureStorage() {
 
 function readRepos() {
   ensureStorage();
-  return JSON.parse(fs.readFileSync(REPO_FILE, "utf-8"));
+  return JSON.parse(fs.readFileSync(REPO_FILE, 'utf-8'));
 }
 
 function writeRepos(data: any[]) {
@@ -34,7 +34,7 @@ async function verifyRepo(owner: string, repo: string) {
   await axios.get(`https://api.github.com/repos/${owner}/${repo}`, {
     headers: {
       Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
+      Accept: 'application/vnd.github+json',
     },
   });
 }
@@ -55,12 +55,10 @@ export async function connectRepo({
 
   const repos = readRepos();
 
-  const exists = repos.find(
-    (r: any) => r.owner === owner && r.repo === repo
-  );
+  const exists = repos.find((r: any) => r.owner === owner && r.repo === repo);
 
   if (exists) {
-    throw new Error("Repository already connected");
+    throw new Error('Repository already connected');
   }
 
   repos.push({

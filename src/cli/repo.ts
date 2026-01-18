@@ -1,8 +1,12 @@
-import ora from "ora";
-import chalk from "chalk";
-import { askRepoDetails, confirmAction } from "../utils/inquirer";
-import { connectRepo, disconnectRepo, listRepos } from "../services/github.services";
-import { requireAuth } from "../core/token";
+import ora from 'ora';
+import chalk from 'chalk';
+import { askRepoDetails, confirmAction } from '../utils/inquirer';
+import {
+  connectRepo,
+  disconnectRepo,
+  listRepos,
+} from '../services/github.services';
+import { requireAuth } from '../core/token';
 
 /**
  * Connect a GitHub repository
@@ -10,7 +14,7 @@ import { requireAuth } from "../core/token";
 export async function connectRepoCommand() {
   requireAuth();
 
-  const spinner = ora("Preparing to connect repository...").start();
+  const spinner = ora('Preparing to connect repository...').start();
 
   try {
     spinner.stop();
@@ -22,10 +26,10 @@ export async function connectRepoCommand() {
     await connectRepo({ owner, repo, isPrivate });
 
     connectSpinner.succeed(
-      chalk.green(`Repository ${owner}/${repo} connected successfully`)
+      chalk.green(`Repository ${owner}/${repo} connected successfully`),
     );
   } catch (err: any) {
-    spinner.fail("Failed to connect repository");
+    spinner.fail('Failed to connect repository');
     console.error(chalk.red(err.message));
   }
 }
@@ -39,22 +43,22 @@ export async function disconnectRepoCommand() {
   const repos = await listRepos();
 
   if (repos.length === 0) {
-    console.log(chalk.yellow("No repositories connected"));
+    console.log(chalk.yellow('No repositories connected'));
     return;
   }
 
   const { repo } = await askRepoDetails();
 
   const confirm = await confirmAction(
-    `Are you sure you want to disconnect ${repo}?`
+    `Are you sure you want to disconnect ${repo}?`,
   );
 
   if (!confirm) {
-    console.log(chalk.gray("Operation cancelled"));
+    console.log(chalk.gray('Operation cancelled'));
     return;
   }
 
-  const spinner = ora("Disconnecting repository...").start();
+  const spinner = ora('Disconnecting repository...').start();
 
   await disconnectRepo(repo);
 
@@ -67,18 +71,18 @@ export async function disconnectRepoCommand() {
 export async function listRepoCommand() {
   requireAuth();
 
-  const spinner = ora("Fetching repositories...").start();
+  const spinner = ora('Fetching repositories...').start();
 
   const repos = await listRepos();
 
   spinner.stop();
 
   if (repos.length === 0) {
-    console.log(chalk.yellow("No repositories connected"));
+    console.log(chalk.yellow('No repositories connected'));
     return;
   }
 
   repos.forEach((r: any, i: number) => {
-    console.log(`${i + 1}. ${chalk.cyan(r.owner + "/" + r.repo)}`);
+    console.log(`${i + 1}. ${chalk.cyan(r.owner + '/' + r.repo)}`);
   });
 }

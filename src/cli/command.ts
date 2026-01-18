@@ -21,7 +21,7 @@ program
   .command('login')
   .description('Login to Teams CLI')
   .action(async () => {
-    await loginWithGithub();
+    await getGithubUser();
   });
 
 program

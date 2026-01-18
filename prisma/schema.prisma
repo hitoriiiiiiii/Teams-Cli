@@ -1,36 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
-  id        Int      @id @default(autoincrement())
-  githubId  String   @unique
-  username  String
+  id        Int          @id @default(autoincrement())
   email     String?
+  createdAt DateTime     @default(now())
+  githubId  String       @unique
+  username  String
   teams     TeamMember[]
-  createdAt DateTime @default(now())
 }
 
 model Team {
-  id        Int      @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   name      String
-  members   TeamMember[]
+  createdAt DateTime     @default(now())
   repos     Repo[]
-  createdAt DateTime @default(now())
+  members   TeamMember[]
 }
 
 model TeamMember {
-  id     Int   @id @default(autoincrement())
+  id     Int  @id @default(autoincrement())
   userId Int
   teamId Int
-
-  user   User @relation(fields: [userId], references: [id])
   team   Team @relation(fields: [teamId], references: [id])
+  user   User @relation(fields: [userId], references: [id])
 
   @@unique([userId, teamId])
 }
@@ -39,18 +38,18 @@ model Repo {
   id        Int      @id @default(autoincrement())
   name      String
   teamId    Int
-  team      Team     @relation(fields: [teamId], references: [id])
-  commits   Commit[]
   createdAt DateTime @default(now())
+  commits   Commit[]
+  team      Team     @relation(fields: [teamId], references: [id])
 
   @@unique([teamId, name])
 }
 
 model Commit {
   id        Int      @id @default(autoincrement())
-  sha       String   @unique
   message   String
   repoId    Int
-  repo      Repo     @relation(fields: [repoId], references: [id])
   createdAt DateTime @default(now())
+  sha       String   @unique
+  repo      Repo     @relation(fields: [repoId], references: [id])
 }

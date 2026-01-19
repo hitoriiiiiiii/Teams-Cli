@@ -15,7 +15,7 @@ interface AuthData {
   };
 }
 
-function readConfig(): AuthData {
+export function readConfig(): AuthData {
   if (!fs.existsSync(CONFIG_FILE)) return {};
   return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8'));
 }

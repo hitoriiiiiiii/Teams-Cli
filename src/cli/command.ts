@@ -7,6 +7,14 @@ import {
   disconnectRepoCommand,
   listRepoCommand,
 } from './repo';
+import { getCurrentUser } from '../utils/currentUser';
+import { createTeam,
+  getTeamByUser,
+ } from '../controllers/team.controller';
+import { addUsertoTeam } from "../controllers/team.controller";
+import prisma from "../db/prisma";
+import { ensureUserInTeam } from './team';
+
 
 const program = new Command();
 
@@ -31,11 +39,15 @@ program
     logoutUser();
   });
 
+
 program
   .command('whoami')
   .description('Show current logged-in user')
   .action(() => {
-    getGithubUser();
+    const user = getCurrentUser();
+    console.log('👤 Logged in as');
+    console.log(`ID       : ${user.id}`);
+    console.log(`Username : ${user.username}`);
   });
 
 //User commands'
@@ -75,19 +87,36 @@ team
   .command('create')
   .description('Create a new team')
   .option('-n, --name <name>', 'Team name')
-  .action((opts) => {
+  .action(async(opts) => {
     if (!opts.name) {
       console.error('❌ Team name is required');
       process.exit(1);
     }
-    console.log(`✅ Team "${opts.name}" created`);
+    const user = getCurrentUser();
+    const team = await createTeam(opts.name, user.id);
+
+    console.log('✅ Team created');
+    console.log(`ID : ${team.id}`);
+    console.log(`Name: ${team.name}`);
+
   });
 
 team
   .command('list')
   .description('List all teams')
-  .action(() => {
-    console.log('Listing teams ...');
+  .action(async () => {
+    const user = getCurrentUser();
+    const teams = await getTeamByUser(user.id);
+
+    if (teams.length === 0) {
+      console.log('No teams found');
+      return;
+    }
+
+    console.log('Your Teams:');
+    teams.forEach(t => {
+      console.log(`ID: ${t.team.id} | Name: ${t.team.name}`);
+    });
   });
 
 team
@@ -143,8 +172,29 @@ member
   .description('Add a member to team')
   .option('-t, --team <id>', 'Team ID')
   .option('-u, --username <username>', 'GitHub username')
-  .action((opts) => {
-    console.log(`➕ Added ${opts.username} to team ${opts.team}`);
+  .action(async (opts) => {
+    if (!opts.team || !opts.username) {
+      console.error('❌ teamId and username required');
+      process.exit(1);
+    }
+
+    const user = getCurrentUser();
+    const teamId = Number(opts.team);
+
+    await ensureUserInTeam(user.id, teamId);
+
+    const targetUser = await prisma.user.findUnique({
+      where: { username: opts.username },
+    });
+
+    if (!targetUser) {
+      console.error('❌ User not found');
+      return;
+    }
+
+    await addUsertoTeam(targetUser.id, teamId);
+
+    console.log(`✅ ${opts.username} added to team ${teamId}`);
   });
 
 member

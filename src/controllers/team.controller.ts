@@ -36,3 +36,20 @@ export async function getTeamByUser(userId: number) {
     },
   });
 }
+
+export async function getTeamByName(name: string) {
+  return prisma.team.findMany({
+    where: { name }
+  });
+}
+
+export async function listTeams(userId: number) {
+  return prisma.teamMember.findMany({
+    where: {
+      userId: userId,
+    },
+    include: {
+      team: true,
+    },
+  });
+}

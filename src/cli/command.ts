@@ -3,10 +3,10 @@ import { showHelp } from './help';
 import { loginWithGithub, logoutUser, authStatus } from '../cli/auth';
 import { getGithubUser } from './github';
 import {
-  connectRepoCommand,
-  disconnectRepoCommand,
-  listRepoCommand,
-} from './repo';
+  createRepo,
+  getReposByTeam,
+  deleteRepoByFullName,
+} from '../controllers/repo.controller';
 import { getCurrentUser } from '../utils/currentUser';
 import { createTeam, getTeamByUser } from '../controllers/team.controller';
 import { addUsertoTeam } from '../controllers/team.controller';
@@ -81,16 +81,11 @@ user
 const team = program.command('team').description('Team Management');
 
 team
-  .command('create')
+  .command('create <name>')
   .description('Create a new team')
-  .option('-n, --name <name>', 'Team name')
-  .action(async (opts) => {
-    if (!opts.name) {
-      console.error('❌ Team name is required');
-      process.exit(1);
-    }
+  .action(async (name: string) => {
     const user = getCurrentUser();
-    const team = await createTeam(opts.name, user.id);
+    const team = await createTeam(name, user.id);
 
     console.log('✅ Team created');
     console.log(`ID : ${team.id}`);
@@ -211,19 +206,66 @@ member
 const repo = program.command('repo').description('Repository management');
 
 repo
-  .command('connect')
-  .description('Connect a GitHub repository')
-  .action(connectRepoCommand);
+  .command('add <teamName> <repoName>')
+  .description('Add a repo to a team')
+  .action(async (teamName, repoName) => {
+    const user = getCurrentUser();
+
+    // CLI handles GitHub fullName and other repo info
+    const team = await prisma.team.findFirst({ where: { name: teamName } });
+    if (!team) return console.error('❌ Team not found');
+
+    const repoData = {
+      githubId: 0, // placeholder
+      name: repoName,
+      fullName: `${user.username}/${repoName}`,
+      private: false,
+      stars: 0,
+      forks: 0,
+      teamId: team.id,
+    };
+
+    await createRepo(repoData); // controller only gets clean object
+    console.log(`✅ Repo ${repoName} added to team ${teamName}`);
+  });
 
 repo
-  .command('disconnect')
-  .description('Disconnect a GitHub repository')
-  .action(disconnectRepoCommand);
+  .command('list <teamName>')
+  .description('List all repos of a team')
+  .action(async (teamName) => {
+    const team = await prisma.team.findFirst({
+      where: { name: teamName },
+    });
+
+    if (!team) {
+      console.error('❌ Team not found');
+      return;
+    }
+
+    const repos = await getReposByTeam(team.id);
+
+    if (!repos.length) {
+      console.log('No repos found');
+      return;
+    }
+
+    console.log(`Repos in ${teamName}:`);
+    repos.forEach((r) => {
+      console.log(`- ${r.name}`);
+    });
+  });
 
 repo
-  .command('list')
-  .description('List connected repositories')
-  .action(listRepoCommand);
+  .command('remove <teamName> <repoName>')
+  .description('Remove a repo from a team')
+  .action(async (teamName, repoName) => {
+    const team = await prisma.team.findFirst({ where: { name: teamName } });
+    if (!team) return console.error('❌ Team not found');
+
+    await deleteRepoByFullName(team.id, `${teamName}/${repoName}`);
+    console.log(`🗑️ Repo ${repoName} removed from team ${teamName}`);
+  });
+
 
 //Invite commands
 

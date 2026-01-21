@@ -1,6 +1,6 @@
 import prisma from '../db/prisma';
 
-export async function createRepo(data: {
+export interface RepoData {
   githubId: number;
   name: string;
   fullName: string;
@@ -8,12 +8,14 @@ export async function createRepo(data: {
   stars: number;
   forks: number;
   teamId: number;
-}) {
-  return prisma.repo.create({
-    data,
-  });
 }
 
+// Create a repository
+export async function createRepo(data: RepoData) {
+  return prisma.repo.create({ data });
+}
+
+// Get all repositories for a team
 export async function getReposByTeam(teamId: number) {
   return prisma.repo.findMany({
     where: { teamId },
@@ -21,15 +23,16 @@ export async function getReposByTeam(teamId: number) {
   });
 }
 
+// Delete a repository by team + fullName
 export async function deleteRepoByFullName(
   teamId: number,
-  fullName: string,
+  fullName: string
 ) {
   return prisma.repo.delete({
     where: {
       teamId_fullName: {
-        teamId: teamId,     // ✅ use function param
-        fullName: fullName // ✅ use function param
+        teamId,
+        fullName,
       },
     },
   });

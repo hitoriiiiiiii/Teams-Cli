@@ -36,17 +36,18 @@ model TeamMember {
 
 model Repo {
   id        Int      @id @default(autoincrement())
-  githubId  Int      @unique
   name      String
+  teamId    Int
+  createdAt DateTime @default(now())
+  forks     Int
+  fullName  String   @unique
+  githubId  Int      @unique
+  language  String?
   private   Boolean
   stars     Int
-  forks     Int 
-  fullName  String
-  language  String?
-  teamId    Int
-   createdAt DateTime @default(now())
-  team      Team     @relation(fields: [teamId], references: [id])
   commits   Commit[]
+  team      Team     @relation(fields: [teamId], references: [id])
+
   @@unique([teamId, fullName])
 }
 

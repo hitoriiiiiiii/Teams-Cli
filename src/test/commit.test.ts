@@ -15,7 +15,6 @@ describe("Commit Module (Prisma Integration Tests)", () => {
     await prisma.team.deleteMany();
     await prisma.user.deleteMany();
 
-    // Create test user
     const user = await prisma.user.create({
       data: {
         githubId: "commit_user_001",
@@ -25,23 +24,15 @@ describe("Commit Module (Prisma Integration Tests)", () => {
     });
     userId = user.id;
 
-    // Create test team
     const team = await prisma.team.create({
-      data: {
-        name: "Commit Team",
-      },
+      data: { name: "Commit Team" },
     });
     teamId = team.id;
 
-    // Add user to team
     await prisma.teamMember.create({
-      data: {
-        userId,
-        teamId,
-      },
+      data: { userId, teamId },
     });
 
-    // Create repo
     const repo = await prisma.repo.create({
       data: {
         name: "Commit Repo",
@@ -57,11 +48,6 @@ describe("Commit Module (Prisma Integration Tests)", () => {
     repoId = repo.id;
   });
 
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
-
-  // CREATE COMMITS
   it("should create multiple commits for repo", async () => {
     const commit1 = await prisma.commit.create({
       data: {
@@ -70,6 +56,7 @@ describe("Commit Module (Prisma Integration Tests)", () => {
         repoId,
       },
     });
+
     const commit2 = await prisma.commit.create({
       data: {
         message: "Added README",
@@ -85,10 +72,10 @@ describe("Commit Module (Prisma Integration Tests)", () => {
     expect(commit2.repoId).toBe(repoId);
   });
 
-  // FETCH COMMITS BY REPO
   it("should fetch all commits of a repo", async () => {
     const commits = await prisma.commit.findMany({
       where: { repoId },
+      orderBy: { id: "asc" },
     });
 
     expect(commits.length).toBe(2);
@@ -96,23 +83,22 @@ describe("Commit Module (Prisma Integration Tests)", () => {
     expect(commits[1].message).toBe("Added README");
   });
 
-  // TEST UNIQUE SHA CONSTRAINT
   it("should not allow duplicate SHA", async () => {
     await expect(
       prisma.commit.create({
         data: {
           message: "Duplicate SHA commit",
-          sha: "sha123", // duplicate
+          sha: "sha123",
           repoId,
         },
       })
-    ).rejects.toThrow(); // P2002 Unique constraint
+    ).rejects.toThrow();
   });
 
-  // DELETE COMMIT
   it("should delete commits", async () => {
-    await prisma.commit.delete({ where: { id: commitId1 } });
-    await prisma.commit.delete({ where: { id: commitId2 } });
+    await prisma.commit.deleteMany({
+      where: { id: { in: [commitId1, commitId2] } },
+    });
 
     const commits = await prisma.commit.findMany({ where: { repoId } });
     expect(commits.length).toBe(0);

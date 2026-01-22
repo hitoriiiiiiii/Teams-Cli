@@ -37,18 +37,16 @@ model TeamMember {
 model Repo {
   id        Int      @id @default(autoincrement())
   name      String
-  teamId    Int
-  createdAt DateTime @default(now())
-  forks     Int
   fullName  String   @unique
   githubId  Int      @unique
-  language  String?
-  private   Boolean
   stars     Int
+  forks     Int
+  private   Boolean
+  language  String?
+  teamId    Int
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   commits   Commit[]
-  team      Team     @relation(fields: [teamId], references: [id])
-
-  @@unique([teamId, fullName])
+  createdAt DateTime @default(now())
 }
 
 model Commit {

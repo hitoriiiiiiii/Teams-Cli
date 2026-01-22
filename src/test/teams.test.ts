@@ -1,20 +1,17 @@
 import prisma from "../db/prisma";
 
-describe("Teams Module (Real DB Tests)", () => {
+describe("Teams Module (Prisma Integration Tests)", () => {
   let userId: number;
   let teamId: number;
 
   beforeAll(async () => {
-    // Clean DB in correct order (FK safe)
-    try {
-    await prisma.commit.deleteMany();       
-    await prisma.repo.deleteMany();         
-    await prisma.teamMember.deleteMany();   
-    await prisma.team.deleteMany();        
-    await prisma.user.deleteMany();       
-  } catch (err) {
-    console.log("DB cleanup error (probably empty tables):", err);
-  }
+    // Clean DB in FK-safe order (NO try/catch)
+    await prisma.commit.deleteMany();
+    await prisma.repo.deleteMany();
+    await prisma.teamMember.deleteMany();
+    await prisma.team.deleteMany();
+    await prisma.user.deleteMany();
+
     // Create user
     const user = await prisma.user.create({
       data: {
@@ -27,17 +24,10 @@ describe("Teams Module (Real DB Tests)", () => {
     userId = user.id;
   });
 
-  afterAll(async () => {
-    await prisma.$disconnect();
-  });
-
   // CREATE TEAM
-
   it("should create a team", async () => {
     const team = await prisma.team.create({
-      data: {
-        name: "Core Team",
-      },
+      data: { name: "Core Team" },
     });
 
     teamId = team.id;
@@ -47,32 +37,21 @@ describe("Teams Module (Real DB Tests)", () => {
   });
 
   // ADD USER TO TEAM
-  
   it("should add user to team", async () => {
     const member = await prisma.teamMember.create({
-      data: {
-        userId,
-        teamId,
-      },
+      data: { userId, teamId },
     });
 
-    expect(member).toBeDefined();
     expect(member.userId).toBe(userId);
     expect(member.teamId).toBe(teamId);
   });
 
-  
   // FETCH TEAM WITH MEMBERS
-  
   it("should fetch team with members", async () => {
     const team = await prisma.team.findUnique({
       where: { id: teamId },
       include: {
-        members: {
-          include: {
-            user: true,
-          },
-        },
+        members: { include: { user: true } },
       },
     });
 
@@ -82,36 +61,27 @@ describe("Teams Module (Real DB Tests)", () => {
   });
 
   // FETCH USER TEAMS
-  
   it("should fetch all teams of a user", async () => {
     const teams = await prisma.teamMember.findMany({
       where: { userId },
       include: { team: true },
     });
 
-    expect(teams.length).toBeGreaterThan(0);
+    expect(teams.length).toBe(1);
     expect(teams[0].team.name).toBe("Core Team");
   });
 
-  
   // REMOVE USER FROM TEAM
-  
   it("should remove user from team", async () => {
     await prisma.teamMember.delete({
       where: {
-        userId_teamId: {
-          userId,
-          teamId,
-        },
+        userId_teamId: { userId, teamId },
       },
     });
 
     const member = await prisma.teamMember.findUnique({
       where: {
-        userId_teamId: {
-          userId,
-          teamId,
-        },
+        userId_teamId: { userId, teamId },
       },
     });
 

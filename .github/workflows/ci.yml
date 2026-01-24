@@ -35,7 +35,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install dependencies
         run: npm install
@@ -44,7 +44,7 @@ jobs:
         run: npx prisma generate
 
       - name: Reset DB & apply schema
-        run: npx prisma db push --accept-data-loss
+        run: npx prisma db push --force-reset
 
       - name: Run tests
         run: npx jest --runInBand
@@ -61,7 +61,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Extract Git commit SHA
-        id: vars
         run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Build Docker image with commit SHA
@@ -70,3 +69,4 @@ jobs:
             -t teams-cli:${SHA} \
             -t teams-cli:latest \
             .
+     

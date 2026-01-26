@@ -51,15 +51,29 @@ export async function getCommit(owner: string, repo: string, sha: string) {
 
     if (!ghCommit) return null;
 
-    // 3. Save minimal commit to DB
-    await prisma.commit.create({
-      data: {
-        sha: ghCommit.sha,
-        message: ghCommit.message,
-        repoId: 0, // replace with actual repoId
-        createdAt: new Date(ghCommit.date),
-      },
+    // 3. Try to find repo in DB (optional: only save if repo exists)
+    const repoRecord = await prisma.repo.findFirst({
+      where: { fullName: `${owner}/${repo}` },
     });
+
+    // Only save to DB if repo exists in database
+    if (repoRecord) {
+      try {
+        await prisma.commit.create({
+          data: {
+            sha: ghCommit.sha,
+            message: ghCommit.message,
+            repoId: repoRecord.id,
+            createdAt: new Date(ghCommit.date),
+          },
+        });
+      } catch (dbErr: any) {
+        // Log but don't fail if commit already exists
+        if (!dbErr.message?.includes('Unique constraint failed')) {
+          console.warn('⚠️ Could not save commit to DB:', dbErr.message);
+        }
+      }
+    }
 
     return { ...ghCommit, source: 'github' };
   } catch (err: any) {

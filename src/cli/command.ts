@@ -279,9 +279,20 @@ team
       console.log(chalk.yellow('Members   :') + chalk.cyan.bold(` ${memberCount}`));
       console.log(chalk.yellow('Repos     :') + chalk.cyan.bold(` ${repoCount}`));
       console.log(chalk.yellow('Created   :') + chalk.cyan.bold(` ${team.createdAt}`));
-    } catch (error) {
+    } catch (error: any) {
       spinner.fail(chalk.red.bold('Failed to fetch team details'));
-      console.error(error);
+      
+      // Check for database connection errors
+      if (error.message?.includes('Can\'t reach database server') || error.code === 'ECONNREFUSED') {
+        console.error(chalk.red('\n⚠ Database Connection Error:'));
+        console.error(chalk.yellow('  The database server is unreachable.'));
+        console.error(chalk.yellow('  Please check:'));
+        console.error(chalk.yellow('    1. Your internet connection'));
+        console.error(chalk.yellow('    2. DATABASE_URL environment variable'));
+        console.error(chalk.yellow('    3. Supabase server status'));
+      } else {
+        console.error(chalk.red('\nError details:'), error.message || error);
+      }
     }
   });
 

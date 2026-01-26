@@ -5,7 +5,8 @@ import {
   deleteRepoByFullName,
   getReposByTeam,
 } from '../controllers/repo.controller';
-
+import { User } from "@prisma/client";
+import prisma from '../db/prisma';
 const GITHUB_API = 'https://api.github.com';
 
 /**
@@ -71,4 +72,94 @@ export async function disconnectRepo(fullName: string) {
   }
 
   return deleteRepoByFullName(config.activeTeamId, fullName);
+}
+
+/**
+ * Fetch GitHub user metadata (repos, stars, forks, contributions)
+ */
+export async function getGithubUserMetadata(username: string) {
+  const token = getAuthToken();
+
+  try {
+    // Fetch user profile
+    const userRes = await axios.get(`${GITHUB_API}/users/${username}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+      },
+    });
+
+    const userData = userRes.data;
+
+    // Fetch user repos with pagination
+    const reposRes = await axios.get(`${GITHUB_API}/users/${username}/repos`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+      },
+      params: {
+        per_page: 100,
+        type: 'all',
+        sort: 'updated',
+      },
+    });
+
+    const repos = reposRes.data || [];
+
+    // Calculate total stars and forks
+    let totalStars = 0;
+    let totalForks = 0;
+
+    repos.forEach((repo: any) => {
+      totalStars += repo.stargazers_count || 0;
+      totalForks += repo.forks_count || 0;
+    });
+
+    // Fetch user contributions from GitHub GraphQL or use public repos count
+    // For now, we'll use the public_repos count from user profile
+    const publicRepos = userData.public_repos || 0;
+
+    return {
+      username: userData.login,
+      name: userData.name || 'N/A',
+      bio: userData.bio || 'N/A',
+      company: userData.company || 'N/A',
+      location: userData.location || 'N/A',
+      publicRepos: publicRepos,
+      followers: userData.followers || 0,
+      following: userData.following || 0,
+      totalStars,
+      totalForks,
+      totalRepos: repos.length,
+      profileUrl: userData.html_url,
+      createdAt: userData.created_at,
+    };
+  } catch (error: any) {
+    throw new Error(
+      `Failed to fetch GitHub metadata: ${error.message || error}`,
+    );
+  }
+}
+
+export async function getOrCreateUser(
+username: string
+): Promise<User> {
+let user = await prisma.user.findFirst({
+where: { username },
+});
+
+
+if (!user) {
+user = await prisma.user.create({
+data: {
+username,
+githubId: username,
+email: `${username}@github.local`,
+},
+});
+}
+
+
+// ✅ THIS WAS MISSING
+return user;
 }

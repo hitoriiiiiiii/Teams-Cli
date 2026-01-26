@@ -44,6 +44,8 @@ export async function getGithubUser() {
     console.log(`Username : ${user.username}`);
     console.log(`Email    : ${user.email ?? 'Private'}`);
     console.log('User saved to DB:', user);
+    
+    return user;
   } catch (err: any) {
     console.log(chalk.red('❌ Failed to fetch GitHub profile'));
     console.error(err.message);

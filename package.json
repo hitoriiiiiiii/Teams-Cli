@@ -27,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hitoriiiiiiii/Teams-Cli.git"
+    "url": "git+https://github.com/hitoriiiiiiii/Teams-Cli.git"
   },
   "homepage": "https://github.com/hitoriiiiiiii/Teams-Cli#readme",
   "bugs": {
@@ -90,5 +90,6 @@
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
-  }
+  },
+  "types": "./dist/index.d.ts"
 }

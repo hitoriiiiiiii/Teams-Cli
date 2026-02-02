@@ -921,7 +921,7 @@ analytics
       spinner.succeed(chalk.green.bold('✓ Activity computed'));
       logger.title('📊 Member Activity');
 
-      data.forEach((m) => {
+      data.forEach((m: any) => {
         const statusMap: Record<string, string> = {
           ACTIVE_7_DAYS: 'Active (7d)',
           ACTIVE_14_DAYS: 'Warm (14d)',

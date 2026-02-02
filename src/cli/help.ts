@@ -42,6 +42,17 @@ INVITE COMMANDS:
                               Accept invite
   teams invite list           List invites
 
+REPO COMMANDS:
+  teams repo create -n <name> -p <private>
+                              Create a repository
+  teams repo list             List all repositories
+  teams repo get -i <id>     Get repository details
+  teams repo delete -i <id>  Delete a repository
+
+COMMIT COMMANDS:
+  teams commits list          List commits for a repo
+  teams commits get -s <sha> Get commit details
+
 CONFIG COMMANDS:
   teams config set -k <key> -v <value>
                               Set config value
@@ -54,7 +65,7 @@ UTILITY COMMANDS:
   teams help                  Show this help menu
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 Tip: Use --help with any command
+💡 Tip: Use --help with any command for detailed usage
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `);
 }

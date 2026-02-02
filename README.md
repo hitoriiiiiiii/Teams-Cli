@@ -653,9 +653,6 @@ docker-compose up -d
 | `PORT` | API server port | ❌ No | `3000` |
 | `LOG_LEVEL` | Logging level | ❌ No | `info` |
 
-See [REDIS_QUICKSTART.md](./REDIS_QUICKSTART.md) for detailed Redis configuration.
-
----
 
 ## 📖 Development Guide
 
@@ -796,9 +793,7 @@ PORT=3001
 ## 📚 Additional Resources
 
 - **[API_RATE_LIMITING.md](./API_RATE_LIMITING.md)** - Comprehensive rate limiting documentation
-- **[REDIS_QUICKSTART.md](./REDIS_QUICKSTART.md)** - Redis setup and configuration
-- **[NPM_SETUP_SUMMARY.md](./NPM_SETUP_SUMMARY.md)** - NPM package setup guide
-- **[COMMANDS_REFERENCE.md](./COMMANDS_REFERENCE.md)** - Complete CLI commands reference
+- **[NPM_SETUP_SUMMARY.md](./NPM_SETUP_SUMMARY.md)** - NPM package setup guid
 - **[FEATURES_SUMMARY.md](./FEATURES_SUMMARY.md)** - Feature overview and capabilities
 
 ---
@@ -879,15 +874,4 @@ This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE
 A developer passionate about open-source and building developer tools.
 
 ---
-
-## 📊 Stats
-
-- 📦 **Version**: 1.0.5
-- 🚀 **Status**: Active Development
-- 📅 **Last Updated**: January 2026
-- 🧪 **Test Coverage**: Comprehensive Jest suite
-- 📝 **License**: MIT
-
----
-
 **Made with ❤️ by the Teams CLI Community**

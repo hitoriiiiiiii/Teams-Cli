@@ -3,17 +3,17 @@ import chalk from 'chalk';
 import { getAuthToken, writeConfig } from '../config/auth.config';
 import { upsertGitHubUser } from '../controllers/user.controller';
 
+
 export async function getGithubUser() {
   const token = getAuthToken();
 
   if (!token) {
-    console.log(chalk.red('❌ Not logged in.'));
-    console.log(chalk.yellow('👉 Run `teams login` and paste a valid GitHub token.'));
+    console.log(chalk.red('❌ Not logged in. Run `teams login` first.'));
     return;
   }
 
   try {
-    // Fetch GitHub profile
+    // Fetch GitHub profile using token
     const res = await axios.get('https://api.github.com/user', {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -23,14 +23,14 @@ export async function getGithubUser() {
 
     const githubUser = res.data;
 
-    // Save / update user in DB
+    // Upsert user into database
     const user = await upsertGitHubUser({
       githubId: githubUser.id.toString(),
       username: githubUser.login,
-      email: githubUser.email ?? null,
+      email: githubUser.email, // might be null
     });
 
-    // Update local config (DO NOT overwrite token)
+    // Save user info locally in config
     writeConfig({
       user: {
         id: user.id,
@@ -40,29 +40,15 @@ export async function getGithubUser() {
       },
     });
 
-    // CLI output
+    // Show GitHub profile in CLI
     console.log(chalk.green('✅ GitHub Profile'));
     console.log(`Username : ${user.username}`);
     console.log(`Email    : ${user.email ?? 'Private'}`);
-
+    console.log('User saved to DB:', user);
+    
     return user;
   } catch (err: any) {
-    if (axios.isAxiosError(err)) {
-      const status = err.response?.status;
-
-      if (status === 401 || status === 403) {
-        console.log(chalk.red('❌ Invalid or expired GitHub token.'));
-        console.log(chalk.yellow('👉 Run `teams login` again.'));
-        return;
-      }
-
-      if (status === 404) {
-        console.log(chalk.red('❌ GitHub user not found.'));
-        return;
-      }
-    }
-
-    console.log(chalk.red('❌ Failed to fetch GitHub profile.'));
+    console.log(chalk.red('❌ Failed to fetch GitHub profile'));
     console.error(err.message);
   }
 }

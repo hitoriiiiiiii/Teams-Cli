@@ -1,6 +1,6 @@
 {
   "name": "@prarthana25/teams-cli",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A comprehensive CLI tool for managing teams, team members, repositories, and analyzing team activity with GitHub OAuth integration",
   "main": "dist/index.js",
   "bin": {
@@ -12,10 +12,8 @@
   },
   "scripts": {
     "dev": "ts-node src/index.ts",
-    "api": "ts-node src/api.ts",
-    "build": "tsc --project tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run build",
-    "prepare": "npm run build",
     "pub": "npm publish --access public",
     "pub:beta": "npm publish --tag beta --access public",
     "version:patch": "npm version patch",
@@ -50,6 +48,7 @@
   "license": "MIT",
   "files": [
     "dist",
+    "bin",
     "README.md",
     "LICENSE",
     "package.json"
@@ -67,29 +66,20 @@
     "commander": "^14.0.2",
     "dotenv": "^17.2.3",
     "express-rate-limit": "^8.2.1",
-    "fs": "^0.0.1-security",
     "inquirer": "^13.2.0",
     "node-cron": "^4.2.1",
     "open": "^11.0.0",
     "ora": "^9.0.0",
-    "os": "^0.1.2",
-    "path": "^0.12.7",
-    "prisma": "^6.19.2",
     "redis": "^5.10.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^25.0.10",
-    "eslint": "^9.39.2",
-    "jest": "^30.2.0",
-    "nodemon": "^3.1.11",
-    "prettier": "^3.8.0",
-    "supertest": "^7.2.2",
-    "ts-jest": "^29.4.6",
+    "prisma": "^6.19.2",
+    "typescript": "^5.9.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "jest": "^30.2.0",
+    "eslint": "^9.39.2",
+    "prettier": "^3.8.0"
   },
   "types": "./dist/index.d.ts"
 }
